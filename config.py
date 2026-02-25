@@ -36,35 +36,35 @@ BEARING_LABEL_MAP = {
     # Fatigue pitting - Inner Race -> Label 2
     "KI04": 2,
     "KI14": 2,
-    # "KI16": 2,
-    # "KI17": 2,
-    # "KI18": 2,
-    # "KI21": 2,
+    "KI16": 2,
+    "KI17": 2,
+    "KI18": 2,
+    "KI21": 2,
     # Fatigue pitting - Outer Race -> Label 3
     "KA04": 3,
     "KA15": 3,
-    # "KA16": 3,
-    # "KA22": 3,
-    # "KA30": 3,
+    "KA16": 3,
+    "KA22": 3,
+    "KA30": 3,
     # Drilling holes - Outer Race -> Label 4
     "KA07": 4,
     "KA08": 4,
-    # "KA09": 4,
+    "KA09": 4,
     # Electric engraver pitting - Inner Race -> Label 5
     "KI03": 5,
     "KI05": 5,
-    # "KI07": 5,
-    # "KI08": 5,
+    "KI07": 5,
+    "KI08": 5,
     # Electric engraver pitting - Outer Race -> Label 6
     "KA03": 6,
     "KA05": 6,
     # Normal -> Label 7
     "K001": 7,
     "K002": 7,
-    # "K003": 7,
-    # "K004": 7,
-    # "K005": 7,
-    # "K006": 7,
+    "K003": 7,
+    "K004": 7,
+    "K005": 7,
+    "K006": 7,
 }
 
 LABEL_NAMES = {
