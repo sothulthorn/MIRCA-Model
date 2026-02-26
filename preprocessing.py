@@ -248,7 +248,7 @@ def get_mat_files(bearing_code, dataset_root, operating_condition):
 
 
 def preprocess_dataset(dataset_root=None, output_dir=None,
-                       operating_condition=None, max_files_per_bearing=20):
+                       operating_condition=None, max_files_per_bearing=None):
     """
     Full preprocessing pipeline:
     1. Load .mat files for each bearing
@@ -269,6 +269,8 @@ def preprocess_dataset(dataset_root=None, output_dir=None,
         output_dir = config.PROCESSED_DIR
     if operating_condition is None:
         operating_condition = config.OPERATING_CONDITION
+    if max_files_per_bearing is None:
+        max_files_per_bearing = config.MAX_FILES_PER_BEARING
 
     os.makedirs(output_dir, exist_ok=True)
 
@@ -345,12 +347,11 @@ def preprocess_dataset(dataset_root=None, output_dir=None,
     all_vib_images = np.array(all_vib_images, dtype=np.uint8)
     all_cur_images = np.array(all_cur_images, dtype=np.uint8)
     all_labels = np.array(all_labels, dtype=np.int64)
-
     print(f"\nTotal samples: {len(all_labels)}")
     print(f"Class distribution:")
     for label in sorted(np.unique(all_labels)):
         count = np.sum(all_labels == label)
-        print(f"  Label {label} ({config.LABEL_NAMES[label]}): {count}")
+        print(f"  Label {label} ({config.LABEL_NAMES[label]}): {count} samples")
 
     # Save
     np.save(os.path.join(output_dir, "vibration_images.npy"), all_vib_images)

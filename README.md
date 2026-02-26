@@ -1,4 +1,4 @@
-# MIRCA Paper
+# MIRCA Paper (Unofficially)
 
 **Paper** : Intelligent fault diagnosis based on multi-source information fusion and attention-enhanced networks
 

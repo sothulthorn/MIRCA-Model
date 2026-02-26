@@ -3,7 +3,6 @@ Configuration for MIRCA fault diagnosis model.
 Based on: "Intelligent fault diagnosis based on multi-source information fusion
            and attention-enhanced networks" (Scientific Reports, 2025)
 """
-import os
 
 # ==============================================================================
 # Dataset Paths
@@ -27,6 +26,97 @@ OPERATING_CONDITION = "N15_M07_F10"
 # Label 6: Electric engraver pitting - Outer Race
 # Label 7: Normal
 
+# Option A
+# BEARING_LABEL_MAP = {
+#     "KI01": 0,  # EDM Inner
+#     "KA01": 1,  # EDM Outer
+#     "KI04": 2,  # Fatigue Inner
+#     "KA04": 3,  # Fatigue Outer
+#     "KA07": 4,  # Drilling Outer
+#     "KI03": 5,  # Engraver Inner
+#     "KA03": 6,  # Engraver Outer
+#     "K001": 7,  # Normal
+# }
+
+# Option B
+# BEARING_LABEL_MAP = {
+#     "KI01": 0,  # EDM Inner (extent 1)
+#     "KA01": 1,  # EDM Outer (extent 1)
+#     "KI14": 2,  # Fatigue Inner (real damage, subtler)
+#     "KA15": 3,  # Fatigue Outer (plastic deformation, subtler)
+#     "KA07": 4,  # Drilling Outer (extent 1)
+#     "KI05": 5,  # Engraver Inner (extent 1)
+#     "KA05": 6,  # Engraver Outer (extent 1)
+#     "K002": 7,  # Normal (shorter run-in, less stable)
+# }
+
+# Option C
+# BEARING_LABEL_MAP = {
+#     "KI01": 0,  # EDM Inner
+#     "KA06": 1,  # EDM Outer
+#     "KI16": 2,  # Fatigue Inner (real, subtle)
+#     "KA16": 3,  # Fatigue Outer (real, subtle)
+#     "KA07": 4,  # Drilling Outer
+#     "KI07": 5,  # Engraver Inner (extent 2)
+#     "KA05": 6,  # Engraver Outer (extent 1)
+#     "K003": 7,  # Normal (only 1h run-in)
+# }
+
+# Option D
+# BEARING_LABEL_MAP = {
+#     # Electrical discharge trenches (EDM) - Inner Race -> Label 0
+#     "KI01": 0,
+#     # Electrical discharge trenches (EDM) - Outer Race -> Label 1
+#     "KA01": 1,
+#     "KA06": 1,
+#     # Fatigue pitting - Inner Race -> Label 2
+#     "KI04": 2,
+#     "KI14": 2,
+#     # Fatigue pitting - Outer Race -> Label 3
+#     "KA04": 3,
+#     "KA15": 3,
+#     # Drilling holes - Outer Race -> Label 4
+#     "KA07": 4,
+#     "KA08": 4,
+#     # Electric engraver pitting - Inner Race -> Label 5
+#     "KI03": 5,
+#     "KI05": 5,
+#     # Electric engraver pitting - Outer Race -> Label 6
+#     "KA03": 6,
+#     "KA05": 6,
+#     # Normal -> Label 7
+#     "K001": 7,
+#     "K002": 7,
+# }
+
+# Option E
+# BEARING_LABEL_MAP = {
+#     # Label 0: (Previously EDM_Inner) -> Now Natural Inner
+#     "KI14": 0, "KI17": 0,
+    
+#     # Label 1: (Previously EDM_Outer) -> Now Natural Outer
+#     "KA04": 1, "KA15": 1,
+    
+#     # Label 2: Fatigue_Inner
+#     "KI16": 2, "KI18": 2,
+    
+#     # Label 3: Fatigue_Outer
+#     "KA16": 3, "KA22": 3,
+    
+#     # Label 4: (Previously Drilling_Outer) -> Now Plastic Deformation
+#     "KA30": 4, 
+    
+#     # Label 5: (Previously Engraver_Inner) -> Now Plastic/Natural Inner
+#     "KI21": 5,
+    
+#     # Label 6: (Previously Engraver_Outer) -> Now Mixed/Both Races
+#     "KB23": 6, "KB24": 6,
+    
+#     # Label 7: Normal
+#     "K001": 7, "K002": 7
+# }
+
+# Option F - All
 BEARING_LABEL_MAP = {
     # Electrical discharge trenches (EDM) - Inner Race -> Label 0
     "KI01": 0,
@@ -89,6 +179,7 @@ WINDOW_STRIDE = 1024           # Non-overlapping windows
 CWT_WAVELET = "morl"           # Morlet wavelet for CWT
 CWT_NUM_SCALES = 100           # Number of CWT scales
 IMAGE_SIZE = 224               # Target image size for CNN input
+MAX_FILES_PER_BEARING = 20     # .mat files to use per bearing
 
 # ==============================================================================
 # Dataset Split Ratios (from paper)

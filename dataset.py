@@ -47,7 +47,9 @@ def load_and_split_data(processed_dir=None, seed=None):
     Load preprocessed data and split into train/val/test sets.
 
     Split ratios from paper: 70% train, 20% validation, 10% test.
-    Stratified splitting to maintain class balance.
+    Sample-level stratified splitting as described in the paper:
+    "Among these sub-samples, 70% were allocated to the training set,
+    20% to the validation set, and the remaining 10% to the testing set."
 
     Returns:
         train_dataset, val_dataset, test_dataset: PaderbornDataset instances
@@ -64,7 +66,7 @@ def load_and_split_data(processed_dir=None, seed=None):
 
     print(f"Loaded data: {len(labels)} samples")
 
-    # Stratified split
+    # Sample-level stratified split (matching paper)
     rng = np.random.RandomState(seed)
     train_indices = []
     val_indices = []
@@ -73,8 +75,8 @@ def load_and_split_data(processed_dir=None, seed=None):
     for class_label in np.unique(labels):
         class_indices = np.where(labels == class_label)[0]
         rng.shuffle(class_indices)
-        n = len(class_indices)
 
+        n = len(class_indices)
         n_train = int(n * config.TRAIN_RATIO)
         n_val = int(n * config.VAL_RATIO)
 
@@ -82,16 +84,16 @@ def load_and_split_data(processed_dir=None, seed=None):
         val_indices.extend(class_indices[n_train:n_train + n_val])
         test_indices.extend(class_indices[n_train + n_val:])
 
+    train_indices = np.array(train_indices)
+    val_indices = np.array(val_indices)
+    test_indices = np.array(test_indices)
+
     # Shuffle each split
     rng.shuffle(train_indices)
     rng.shuffle(val_indices)
     rng.shuffle(test_indices)
 
-    train_indices = np.array(train_indices)
-    val_indices = np.array(val_indices)
-    test_indices = np.array(test_indices)
-
-    print(f"Split: train={len(train_indices)}, "
+    print(f"Split (sample-level): train={len(train_indices)}, "
           f"val={len(val_indices)}, test={len(test_indices)}")
 
     # Create datasets

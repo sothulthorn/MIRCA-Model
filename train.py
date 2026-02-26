@@ -8,6 +8,7 @@ Implements:
 - Feature extraction for t-SNE visualization
 """
 import os
+import csv
 import time
 import numpy as np
 import torch
@@ -135,7 +136,7 @@ def measure_inference_time(model, device, input_size=(1, 1, 224, 224),
 
 
 def train_model(variant_name, train_loader, val_loader, test_loader,
-                device, output_dir=None, num_epochs=None):
+                device, output_dir=None, num_epochs=None, use_fusion=True):
     """
     Full training pipeline for one model variant.
 
@@ -145,6 +146,7 @@ def train_model(variant_name, train_loader, val_loader, test_loader,
         device: torch device
         output_dir: Directory to save outputs
         num_epochs: Number of training epochs
+        use_fusion: Whether to use multi-source fusion
 
     Returns:
         results: dict with accuracy, f1, training history, etc.
@@ -161,7 +163,7 @@ def train_model(variant_name, train_loader, val_loader, test_loader,
         variant=variant_name,
         num_classes=config.NUM_CLASSES,
         ema_groups=config.EMA_GROUPS,
-        use_fusion=True,
+        use_fusion=use_fusion,
     )
     model = model.to(device)
 
@@ -169,7 +171,7 @@ def train_model(variant_name, train_loader, val_loader, test_loader,
     num_params = sum(p.numel() for p in model.parameters())
     print(f"  Parameters: {num_params/1e6:.2f}M")
 
-    # Optimizer and loss (from paper: SGD, lr=0.001, cross-entropy)
+    # Optimizer, scheduler, and loss (from paper: SGD, lr=0.001, cross-entropy)
     criterion = nn.CrossEntropyLoss()
     optimizer = SGD(
         model.parameters(),
@@ -177,11 +179,19 @@ def train_model(variant_name, train_loader, val_loader, test_loader,
         momentum=config.MOMENTUM,
         weight_decay=config.WEIGHT_DECAY,
     )
-
     # Training history
     train_losses, val_losses = [], []
     train_accs, val_accs = [], []
     best_val_acc = 0.0
+
+    # CSV training history
+    csv_path = os.path.join(output_dir, "training_history.csv")
+    csv_file = open(csv_path, "w", newline="")
+    csv_writer = csv.writer(csv_file)
+    csv_writer.writerow([
+        "epoch", "train_loss", "train_acc", "train_f1",
+        "val_loss", "val_acc", "val_f1", "best_val_acc",
+    ])
 
     epoch_pbar = tqdm(range(1, num_epochs + 1), desc="Epochs", unit="epoch")
     for epoch in epoch_pbar:
@@ -190,6 +200,7 @@ def train_model(variant_name, train_loader, val_loader, test_loader,
             model, train_loader, criterion, optimizer, device,
             epoch=epoch, num_epochs=num_epochs,
         )
+
         # Validate
         val_loss, val_acc, val_f1, _, _ = evaluate(
             model, val_loader, criterion, device, desc="Val",
@@ -205,6 +216,14 @@ def train_model(variant_name, train_loader, val_loader, test_loader,
             best_val_acc = val_acc
             torch.save(model.state_dict(),
                        os.path.join(output_dir, "best_model.pth"))
+
+        # Write epoch to CSV
+        csv_writer.writerow([
+            epoch, f"{train_loss:.6f}", f"{train_acc:.4f}", f"{train_f1:.4f}",
+            f"{val_loss:.6f}", f"{val_acc:.4f}", f"{val_f1:.4f}",
+            f"{best_val_acc:.4f}",
+        ])
+        csv_file.flush()
 
         epoch_pbar.set_postfix(
             tr_loss=f"{train_loss:.4f}",
@@ -224,6 +243,13 @@ def train_model(variant_name, train_loader, val_loader, test_loader,
         model, test_loader, criterion, device
     )
     print(f"  Test Results: Accuracy={test_acc:.2f}%, F1={test_f1:.2f}%")
+
+    # Write test results and close CSV
+    csv_writer.writerow([])
+    csv_writer.writerow(["test", f"{test_loss:.6f}", f"{test_acc:.4f}",
+                         f"{test_f1:.4f}", "", "", "", ""])
+    csv_file.close()
+    print(f"  Training history saved to {csv_path}")
 
     # Measure inference time
     inference_time = measure_inference_time(model, device)
